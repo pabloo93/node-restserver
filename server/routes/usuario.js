@@ -4,7 +4,9 @@ const bcrypt = require('bcrypt-nodejs')
 const Usuario = require('../models/usuario')
 const _ = require('underscore')
 
-app.get('/usuario', (req, res) => {
+const { verificaToken, verificaAdminRole } = require('../middlewares/autenticacion')
+
+app.get('/usuario', verificaToken, (req, res) => {
 
     let desde = req.query.desde || 0
     let limite = req.query.limite || 5
@@ -36,7 +38,7 @@ app.get('/usuario', (req, res) => {
         })
 })
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificaToken, verificaAdminRole], (req, res) => {
 
     let body = req.body
     let salt = bcrypt.genSaltSync(10)
@@ -64,7 +66,7 @@ app.post('/usuario', (req, res) => {
     })
 })
 
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado'])
     let id = req.params.id
 
@@ -84,7 +86,7 @@ app.put('/usuario/:id', (req, res) => {
     })
 })
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRole], (req, res) => {
     let id = req.params.id
 
     //// BORRADO COMPLETO DEL REGISTRO !
